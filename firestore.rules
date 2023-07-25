@@ -1,0 +1,11 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow read and write access to the users collection for authenticated users
+    match /users/{userId} {
+      allow read, write;
+    }
+    match /users/{userId}/tried/{documentId} {
+    	allow create, read, write;
+    }
+  }
+}
