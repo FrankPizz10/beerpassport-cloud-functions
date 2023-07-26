@@ -9,11 +9,37 @@
 
 const {onRequest} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
+const admin = require("firebase-admin");
+admin.initializeApp();
+// CORS Express middleware to enable CORS Requests.
+const cors = require("cors")({
+  origin: true,
+});
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
 
 exports.helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
+  cors(request, response, () => {
+    logger.info("Hello logs!", {structuredData: true});
+    response.send("Hello from Firebase!");
+  });
+});
+
+// This makes a user an admin
+exports.addAdminRole = onRequest((request, response) => {
+  cors(request, response, () => {
+    logger.info("addAdminRole", {structuredData: true});
+    return admin.auth().getUserByEmail(request.body.email).then((user) => {
+      return admin.auth().setCustomUserClaims(user.uid, {
+        admin: true,
+      });
+    }).then(() => {
+      return response.send(
+          {message: `Success! ${request.body.email} has been made an admin.`},
+      );
+    }).catch((err) => {
+      return response.status(500).send(err);
+    });
+  });
 });
