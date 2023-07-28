@@ -27,9 +27,12 @@ exports.helloWorld = onRequest((request, response) => {
 });
 
 // This makes a user an admin
-exports.addAdminRole = onRequest((request, response) => {
+exports.addAdminRole = onRequest((request, response, context) => {
   cors(request, response, () => {
     logger.info("addAdminRole", {structuredData: true});
+    if (context.auth.token.admin !== true) {
+      return response.status(401).send({error: "Unauthorized"});
+    }
     return admin.auth().getUserByEmail(request.body.email).then((user) => {
       return admin.auth().setCustomUserClaims(user.uid, {
         admin: true,
