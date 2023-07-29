@@ -8,6 +8,7 @@
  */
 
 const {onRequest} = require("firebase-functions/v2/https");
+const {onCall} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 admin.initializeApp();
@@ -27,22 +28,22 @@ exports.helloWorld = onRequest((request, response) => {
 });
 
 // This makes a user an admin
-exports.addAdminRole = onRequest((request, response, context) => {
-  cors(request, response, () => {
+exports.addAdminRole = onCall((data, context) => {
+  cors(data, context, () => {
     logger.info("addAdminRole", {structuredData: true});
     if (context.auth.token.admin !== true) {
-      return response.status(401).send({error: "Unauthorized"});
+      return {error: "Unauthorized"};
     }
-    return admin.auth().getUserByEmail(request.body.email).then((user) => {
+    return admin.auth().getUserByEmail(data.email).then((user) => {
       return admin.auth().setCustomUserClaims(user.uid, {
         admin: true,
       });
     }).then(() => {
-      return response.send(
-          {message: `Success! ${request.body.email} has been made an admin.`},
-      );
+      return {
+        message: `Success! ${data.email} has been made an admin.`,
+      };
     }).catch((err) => {
-      return response.status(500).send(err);
+      return err;
     });
   });
 });
