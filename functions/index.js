@@ -28,22 +28,19 @@ exports.helloWorld = onRequest((request, response) => {
 });
 
 // This makes a user an admin
-exports.addAdminRole = onCall((data, context) => {
-  cors(data, context, () => {
-    logger.info("addAdminRole", {structuredData: true});
-    if (context.auth.token.admin !== true) {
-      return {error: "Unauthorized"};
-    }
-    return admin.auth().getUserByEmail(data.email).then((user) => {
-      return admin.auth().setCustomUserClaims(user.uid, {
-        admin: true,
-      });
-    }).then(() => {
-      return {
-        message: `Success! ${data.email} has been made an admin.`,
-      };
-    }).catch((err) => {
-      return err;
+exports.addAdminRole = onCall((request) => {
+  if (request.auth.token.admin !== true) {
+    return {error: "Unauthorized"};
+  }
+  return admin.auth().getUserByEmail(request.data.email).then((user) => {
+    return admin.auth().setCustomUserClaims(user.uid, {
+      admin: true,
     });
+  }).then(() => {
+    return {
+      message: `Success! ${request.data.email} has been made an admin.`,
+    };
+  }).catch((err) => {
+    return err;
   });
 });
