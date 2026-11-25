@@ -31,7 +31,7 @@ exports.helloWorld = onRequest((request, response) => {
 // is deployed. Keep the callable name so old clients fail closed.
 exports.addAdminRole = onCall(() => {
   throw new HttpsError(
-    "permission-denied",
-    "Legacy admin grants are disabled.",
+      "permission-denied",
+      "Legacy admin grants are disabled.",
   );
 });
