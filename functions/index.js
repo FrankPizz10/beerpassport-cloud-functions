@@ -30,5 +30,8 @@ exports.helloWorld = onRequest((request, response) => {
 // Legacy admin-claim grants are disabled until owner-only access management
 // is deployed. Keep the callable name so old clients fail closed.
 exports.addAdminRole = onCall(() => {
-  throw new HttpsError("permission-denied", "Legacy admin grants are disabled.");
+  throw new HttpsError(
+    "permission-denied",
+    "Legacy admin grants are disabled.",
+  );
 });
