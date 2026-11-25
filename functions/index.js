@@ -8,7 +8,7 @@
  */
 
 const {onRequest} = require("firebase-functions/v2/https");
-const {onCall} = require("firebase-functions/v2/https");
+const {onCall, HttpsError} = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 admin.initializeApp();
@@ -27,20 +27,8 @@ exports.helloWorld = onRequest((request, response) => {
   });
 });
 
-// This makes a user an admin
-exports.addAdminRole = onCall((request) => {
-  if (request.auth.token.admin !== true) {
-    return {error: "Unauthorized"};
-  }
-  return admin.auth().getUserByEmail(request.data.email).then((user) => {
-    return admin.auth().setCustomUserClaims(user.uid, {
-      admin: true,
-    });
-  }).then(() => {
-    return {
-      message: `Success! ${request.data.email} has been made an admin.`,
-    };
-  }).catch((err) => {
-    return err;
-  });
+// Legacy admin-claim grants are disabled until owner-only access management
+// is deployed. Keep the callable name so old clients fail closed.
+exports.addAdminRole = onCall(() => {
+  throw new HttpsError("permission-denied", "Legacy admin grants are disabled.");
 });
